@@ -1,0 +1,170 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidUserProfile(data) {
+      return data.userId is string && data.userId.size() <= 128 &&
+             data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 64 &&
+             data.careerLevel is int && data.careerLevel >= 1 && data.careerLevel <= 100 &&
+             data.cash is int && data.cash >= 0 &&
+             data.reputation is int && data.reputation >= 0 &&
+             data.selectedCarId is string && data.selectedCarId.size() <= 128;
+    }
+
+    function isValidGarageCar(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.userId is string && data.userId.size() <= 128 &&
+             data.carModelKey is string && data.carModelKey.size() <= 64 &&
+             data.name is string && data.name.size() >= 1 && data.name.size() <= 64 &&
+             data.isCustomBuild is bool &&
+             data.paintColorHex is string && data.paintColorHex.size() <= 16 &&
+             data.engineLevel is int && data.engineLevel >= 1 && data.engineLevel <= 5 &&
+             data.turboLevel is int && data.turboLevel >= 0 && data.turboLevel <= 5 &&
+             data.suspensionLevel is int && data.suspensionLevel >= 1 && data.suspensionLevel <= 5 &&
+             data.transmissionLevel is int && data.transmissionLevel >= 1 && data.transmissionLevel <= 5 &&
+             data.brakesLevel is int && data.brakesLevel >= 1 && data.brakesLevel <= 5 &&
+             data.nitroLevel is int && data.nitroLevel >= 1 && data.nitroLevel <= 5 &&
+             data.spoilerType is int && data.spoilerType >= 0 && data.spoilerType <= 10 &&
+             data.bodyKitType is int && data.bodyKitType >= 0 && data.bodyKitType <= 10 &&
+             data.underglowColorHex is string && data.underglowColorHex.size() <= 16 &&
+             data.windowTintLevel is int && data.windowTintLevel >= 0 && data.windowTintLevel <= 100 &&
+             data.wheelType is int && data.wheelType >= 0 && data.wheelType <= 20;
+    }
+
+    function isValidCustomMap(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.userId is string && data.userId.size() <= 128 &&
+             data.name is string && data.name.size() >= 1 && data.name.size() <= 64 &&
+             data.environment is string && data.environment.size() <= 32 &&
+             data.weather is string && data.weather.size() <= 32 &&
+             data.trackPointsJson is string && data.trackPointsJson.size() <= 200000 &&
+             data.obstaclesCount is int && data.obstaclesCount >= 0 && data.obstaclesCount <= 500 &&
+             data.laps is int && data.laps >= 1 && data.laps <= 20;
+    }
+
+    function isValidScoreRecord(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.userId is string && data.userId.size() <= 128 &&
+             data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 64 &&
+             data.trackId is string && data.trackId.size() <= 64 &&
+             data.carModel is string && data.carModel.size() <= 64 &&
+             data.lapTimeMs is int && data.lapTimeMs >= 0 &&
+             data.driftScore is int && data.driftScore >= 0 &&
+             data.gameMode is string && (data.gameMode == 'race' || data.gameMode == 'drift' || data.gameMode == 'career');
+    }
+
+    match /users/{userId} {
+      allow get: if isSignedIn() && request.auth.uid == userId;
+      allow list: if isSignedIn() && request.auth.uid == userId;
+
+      allow create: if isSignedIn() &&
+                       request.auth.uid == userId &&
+                       incoming().userId == request.auth.uid &&
+                       incoming().keys().hasAll(['userId', 'displayName', 'careerLevel', 'cash', 'reputation', 'selectedCarId', 'createdAt', 'updatedAt']) &&
+                       incoming().keys().hasOnly(['userId', 'displayName', 'careerLevel', 'cash', 'reputation', 'selectedCarId', 'createdAt', 'updatedAt']) &&
+                       incoming().createdAt is timestamp && incoming().createdAt <= request.time &&
+                       incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                       isValidUserProfile(incoming());
+
+      allow update: if isSignedIn() &&
+                       request.auth.uid == userId &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                       isValidUserProfile(incoming()) &&
+                       incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'careerLevel', 'cash', 'reputation', 'selectedCarId', 'updatedAt']);
+
+      allow delete: if isSignedIn() && request.auth.uid == userId;
+
+      match /garage/{carId} {
+        allow get: if isSignedIn() && request.auth.uid == userId;
+        allow list: if isSignedIn() && request.auth.uid == userId;
+
+        allow create: if isSignedIn() &&
+                         request.auth.uid == userId &&
+                         incoming().userId == request.auth.uid &&
+                         incoming().id == carId &&
+                         isValidId(carId) &&
+                         incoming().keys().hasAll(['id', 'userId', 'carModelKey', 'name', 'isCustomBuild', 'paintColorHex', 'engineLevel', 'turboLevel', 'suspensionLevel', 'transmissionLevel', 'brakesLevel', 'nitroLevel', 'spoilerType', 'bodyKitType', 'underglowColorHex', 'windowTintLevel', 'wheelType', 'createdAt', 'updatedAt']) &&
+                         incoming().keys().hasOnly(['id', 'userId', 'carModelKey', 'name', 'isCustomBuild', 'paintColorHex', 'engineLevel', 'turboLevel', 'suspensionLevel', 'transmissionLevel', 'brakesLevel', 'nitroLevel', 'spoilerType', 'bodyKitType', 'underglowColorHex', 'windowTintLevel', 'wheelType', 'createdAt', 'updatedAt']) &&
+                         incoming().createdAt is timestamp && incoming().createdAt <= request.time &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                         isValidGarageCar(incoming());
+
+        allow update: if isSignedIn() &&
+                         request.auth.uid == userId &&
+                         incoming().userId == existing().userId &&
+                         incoming().id == existing().id &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                         isValidGarageCar(incoming()) &&
+                         incoming().diff(existing()).affectedKeys().hasOnly(['carModelKey', 'name', 'isCustomBuild', 'paintColorHex', 'engineLevel', 'turboLevel', 'suspensionLevel', 'transmissionLevel', 'brakesLevel', 'nitroLevel', 'spoilerType', 'bodyKitType', 'underglowColorHex', 'windowTintLevel', 'wheelType', 'updatedAt']);
+
+        allow delete: if isSignedIn() && request.auth.uid == userId;
+      }
+
+      match /custom_maps/{mapId} {
+        allow get: if isSignedIn();
+        allow list: if isSignedIn() && request.auth.uid == userId;
+
+        allow create: if isSignedIn() &&
+                         request.auth.uid == userId &&
+                         incoming().userId == request.auth.uid &&
+                         incoming().id == mapId &&
+                         isValidId(mapId) &&
+                         incoming().keys().hasAll(['id', 'userId', 'name', 'environment', 'weather', 'trackPointsJson', 'obstaclesCount', 'laps', 'createdAt', 'updatedAt']) &&
+                         incoming().keys().hasOnly(['id', 'userId', 'name', 'environment', 'weather', 'trackPointsJson', 'obstaclesCount', 'laps', 'createdAt', 'updatedAt']) &&
+                         incoming().createdAt is timestamp && incoming().createdAt <= request.time &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                         isValidCustomMap(incoming());
+
+        allow update: if isSignedIn() &&
+                         request.auth.uid == userId &&
+                         incoming().userId == existing().userId &&
+                         incoming().id == existing().id &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                         isValidCustomMap(incoming()) &&
+                         incoming().diff(existing()).affectedKeys().hasOnly(['name', 'environment', 'weather', 'trackPointsJson', 'obstaclesCount', 'laps', 'updatedAt']);
+
+        allow delete: if isSignedIn() && request.auth.uid == userId;
+      }
+    }
+
+    match /scores/{scoreId} {
+      allow get, list: if isSignedIn();
+
+      allow create: if isSignedIn() &&
+                       incoming().userId == request.auth.uid &&
+                       incoming().id == scoreId &&
+                       isValidId(scoreId) &&
+                       incoming().keys().hasAll(['id', 'userId', 'displayName', 'trackId', 'carModel', 'lapTimeMs', 'driftScore', 'gameMode', 'createdAt']) &&
+                       incoming().keys().hasOnly(['id', 'userId', 'displayName', 'trackId', 'carModel', 'lapTimeMs', 'driftScore', 'gameMode', 'createdAt']) &&
+                       incoming().createdAt is timestamp && incoming().createdAt <= request.time &&
+                       isValidScoreRecord(incoming());
+
+      allow update, delete: if false;
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Apex Racer 3D",
+  "description": "High performance 3D car racing game with realistic physics, free roam city with AI traffic and NPCs, garage customization, car builder, drift and career modes.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

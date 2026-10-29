@@ -1,0 +1,253 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile with career progress, cash, and settings",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The authenticated user UID"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Player display name"
+        },
+        "careerLevel": {
+          "type": "integer",
+          "description": "Current career progression level"
+        },
+        "cash": {
+          "type": "integer",
+          "description": "Player cash balance for cars and upgrades"
+        },
+        "reputation": {
+          "type": "integer",
+          "description": "Reputation points"
+        },
+        "selectedCarId": {
+          "type": "string",
+          "description": "Currently active car ID in garage"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of creation"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of last update"
+        }
+      },
+      "required": ["userId", "displayName", "careerLevel", "cash", "reputation", "selectedCarId", "createdAt", "updatedAt"]
+    },
+    "GarageCar": {
+      "title": "GarageCar",
+      "description": "Player owned car or custom-built vehicle with component upgrades",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique car document ID"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Owner UID"
+        },
+        "carModelKey": {
+          "type": "string",
+          "description": "Model identifier like bmw_m4, porsche_911, scorpio_classic, etc."
+        },
+        "name": {
+          "type": "string",
+          "description": "Custom or default car name"
+        },
+        "isCustomBuild": {
+          "type": "boolean",
+          "description": "Whether this vehicle was built component-by-component in car builder"
+        },
+        "paintColorHex": {
+          "type": "string",
+          "description": "Hex color string of car paint"
+        },
+        "engineLevel": {
+          "type": "integer",
+          "description": "Engine tuning tier (1-5)"
+        },
+        "turboLevel": {
+          "type": "integer",
+          "description": "Turbocharger / Supercharger tier (0-5)"
+        },
+        "suspensionLevel": {
+          "type": "integer",
+          "description": "Suspension stiffness and handling tier (1-5)"
+        },
+        "transmissionLevel": {
+          "type": "integer",
+          "description": "Gearbox and shift speed tier (1-5)"
+        },
+        "brakesLevel": {
+          "type": "integer",
+          "description": "Braking force and ABS tier (1-5)"
+        },
+        "nitroLevel": {
+          "type": "integer",
+          "description": "Nitro bottle capacity and boost power (1-5)"
+        },
+        "spoilerType": {
+          "type": "integer",
+          "description": "Aero spoiler style index"
+        },
+        "bodyKitType": {
+          "type": "integer",
+          "description": "Widebody / aerodynamic body kit index"
+        },
+        "underglowColorHex": {
+          "type": "string",
+          "description": "Neon underglow hex color"
+        },
+        "windowTintLevel": {
+          "type": "integer",
+          "description": "Window tint percentage (0-100)"
+        },
+        "wheelType": {
+          "type": "integer",
+          "description": "Alloy rim design index"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of creation"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of last update"
+        }
+      },
+      "required": ["id", "userId", "carModelKey", "name", "isCustomBuild", "paintColorHex", "engineLevel", "turboLevel", "suspensionLevel", "transmissionLevel", "brakesLevel", "nitroLevel", "spoilerType", "bodyKitType", "underglowColorHex", "windowTintLevel", "wheelType", "createdAt", "updatedAt"]
+    },
+    "CustomMap": {
+      "title": "CustomMap",
+      "description": "Track blueprint created by player in Map Builder mode",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique map ID"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Creator user UID"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of custom race track"
+        },
+        "environment": {
+          "type": "string",
+          "description": "Environment theme: city, desert, mountain, coastal, neon_night"
+        },
+        "weather": {
+          "type": "string",
+          "description": "Weather condition: sunny, rain, fog, snow"
+        },
+        "trackPointsJson": {
+          "type": "string",
+          "description": "Serialized track segments, curves and elevations"
+        },
+        "obstaclesCount": {
+          "type": "integer",
+          "description": "Number of track hazards/props"
+        },
+        "laps": {
+          "type": "integer",
+          "description": "Target lap count"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of creation"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of last update"
+        }
+      },
+      "required": ["id", "userId", "name", "environment", "weather", "trackPointsJson", "obstaclesCount", "laps", "createdAt", "updatedAt"]
+    },
+    "ScoreRecord": {
+      "title": "ScoreRecord",
+      "description": "Leaderboard lap time or drift record",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique score entry ID"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Racer UID"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Racer display name"
+        },
+        "trackId": {
+          "type": "string",
+          "description": "Track identifier or custom map ID"
+        },
+        "carModel": {
+          "type": "string",
+          "description": "Car model used"
+        },
+        "lapTimeMs": {
+          "type": "integer",
+          "description": "Lap completion time in milliseconds"
+        },
+        "driftScore": {
+          "type": "integer",
+          "description": "Drift mode score achieved"
+        },
+        "gameMode": {
+          "type": "string",
+          "description": "Mode played: race, drift, career"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of score submission"
+        }
+      },
+      "required": ["id", "userId", "displayName", "trackId", "carModel", "lapTimeMs", "driftScore", "gameMode", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "UserProfile"
+      },
+      "description": "Player profile and global progression state"
+    },
+    "/users/{userId}/garage/{carId}": {
+      "schema": {
+        "$ref": "GarageCar"
+      },
+      "description": "User garage vehicles with tuning parameters"
+    },
+    "/users/{userId}/custom_maps/{mapId}": {
+      "schema": {
+        "$ref": "CustomMap"
+      },
+      "description": "Custom race tracks authored by the user"
+    },
+    "/scores/{scoreId}": {
+      "schema": {
+        "$ref": "ScoreRecord"
+      },
+      "description": "Global leaderboard lap times and drift records"
+    }
+  }
+}
